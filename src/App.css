@@ -1,0 +1,29 @@
+html,
+body {
+  margin: 0.5rem;
+  font-family: 'Lato';
+}
+
+.app-logo {
+  max-width: 2rem;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .app-logo {
+    animation: app-logo-spin infinite 20s linear;
+  }
+}
+
+@keyframes app-logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.pointer-fade:hover {
+  cursor: pointer;
+  opacity: 0.8;
+}
