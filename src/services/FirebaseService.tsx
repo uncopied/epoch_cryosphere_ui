@@ -1,4 +1,3 @@
-import { getAnalytics } from 'firebase/analytics';
 import { initializeApp } from 'firebase/app';
 import {
   addDoc,
@@ -29,20 +28,12 @@ const firebaseConfig = {
 };
 
 export default class FirebaseService {
-  currentAccountData = {};
+  // currentAccountData = {};
   chainService = new ChainService();
 
-  setup = async ({ account }: any): Promise<void> => {
+  setup = async (): Promise<void> => {
     initializeApp(firebaseConfig);
-    getAnalytics();
-    if (account) {
-      const currentAccount = await this.getDocument('accounts', account);
-      this.currentAccountData = currentAccount.exists()
-        ? currentAccount.data()
-        : {};
-    } else {
-      this.currentAccountData = {};
-    }
+    // getAnalytics();
   };
 
   addDocument = async (

@@ -2,7 +2,7 @@ import WalletConnect from '@walletconnect/client';
 import { IInternalEvent } from '@walletconnect/types';
 import { LogicSigAccount } from 'algosdk';
 import { serverTimestamp } from 'firebase/firestore';
-import React from 'react';
+import React, { ChangeEvent } from 'react';
 import './App.css';
 import ChainService from './services/ChainService';
 import ContractService from './services/ContractService';
@@ -10,11 +10,13 @@ import FirebaseService from './services/FirebaseService';
 import TransactionService from './services/TransactionService';
 import WalletService from './services/WalletService';
 import {
+  DEFAULT_PRICE,
   ellipseAddress,
   FirebaseCollections,
   FirebaseFields,
   SButton,
   Status,
+  TOTAL_COUNT,
 } from './utils';
 
 interface AppProps {}
@@ -29,7 +31,7 @@ interface AppState {
   connected: boolean;
   accounts: string[];
   contracts: any[];
-
+  // for putting on sale
   price: number;
   assetIndex: number;
 }
@@ -44,7 +46,6 @@ const INITIAL_STATE: AppState = {
   connected: false,
   accounts: [],
   contracts: [],
-
   price: -1,
   assetIndex: 0,
 };
@@ -65,7 +66,7 @@ class App extends React.Component<AppProps, AppState> {
   }
 
   setupFirebase = async () => {
-    await this.state.firebaseService.setup({ account: this.state.address });
+    await this.state.firebaseService.setup();
     this.loadContracts();
   };
 
@@ -148,13 +149,15 @@ class App extends React.Component<AppProps, AppState> {
     this.setState({ contracts });
   };
 
-  sellAsset = async (assetIndex: number, price: number): Promise<void> => {
+  sellAsset = async (): Promise<void> => {
     const {
       address: seller,
       firebaseService,
       chainService,
       contractService,
       transactionService,
+      assetIndex,
+      price,
     } = this.state;
 
     if (seller && price) {
@@ -183,6 +186,7 @@ class App extends React.Component<AppProps, AppState> {
           assetIndex,
           contractResult,
         });
+        console.log(response);
         // update status to active
         firebaseService.updateDocument(
           FirebaseCollections.AssetSaleContracts,
@@ -256,11 +260,26 @@ class App extends React.Component<AppProps, AppState> {
     return new LogicSigAccount(contract);
   };
 
+  editionDisplay = (): string => {
+    const count = TOTAL_COUNT - this.state.contracts.length;
+    return `${count}/${TOTAL_COUNT} edition`;
+  };
+
+  onPriceChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const price: number = parseInt(event.target.value) * 1e6 ?? DEFAULT_PRICE;
+    this.setState({ price });
+  };
+
+  onAssetIndexChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const assetIndex: number = parseInt(event.target.value);
+    this.setState({ assetIndex });
+  };
+
   render() {
     const { connector, address, contracts } = this.state;
     const connectWallet = async () => connector.createSession();
     const handleBuy = async () => this.buyAsset();
-    const handleSell = async () => this.sellAsset(94453501, 100 * 1e16);
+    const handleSell = async () => this.sellAsset();
     const seller = contracts?.length
       ? contracts[0][FirebaseFields.Seller]
       : null;
@@ -277,7 +296,7 @@ class App extends React.Component<AppProps, AppState> {
               Acquire NFT
             </SButton>
             {/* <div>{contracts.length} / 250 edition</div> */}
-            <div>9 / 250 edition</div>
+            <div>{this.editionDisplay()}</div>
 
             <div className='flex flex-column items-center justify-between'>
               <SButton className='w-third pointer' onClick={handleSell}>
@@ -289,8 +308,8 @@ class App extends React.Component<AppProps, AppState> {
                   type='number'
                   min='1'
                   step='1'
-                  name='price'
-                  // onChange={this.onInputChange}
+                  name='assetIndex'
+                  onChange={this.onAssetIndexChange}
                   required
                   placeholder='Asset Index'
                 />
@@ -300,7 +319,7 @@ class App extends React.Component<AppProps, AppState> {
                   min='1'
                   step='1'
                   name='price'
-                  // onChange={this.onInputChange}
+                  onChange={this.onPriceChange}
                   required
                   placeholder='Price in Algo'
                 />

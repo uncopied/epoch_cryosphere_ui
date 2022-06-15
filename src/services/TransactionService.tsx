@@ -23,6 +23,7 @@ export default class TransactionService {
     try {
       const sentTxns = await this.algod.sendRawTransaction(signedTxns).do();
       console.log('sentTxns', sentTxns);
+
       const confirmedTxns = await algosdk.waitForConfirmation(
         this.algod,
         sentTxns.txId,
@@ -74,6 +75,8 @@ export default class TransactionService {
 
       const group = algosdk.assignGroupID([txn0, txn1, txn2]);
       const signedTxns = await this.walletService.sign(group);
+      console.log(signedTxns)
+      console.log(group[1])
       signedTxns[1] = algosdk.signLogicSigTransactionObject(
         group[1],
         contractSig

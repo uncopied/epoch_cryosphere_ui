@@ -6,3 +6,5 @@ export const INDEXER_HOST_TEST =
   'https://algoindexer.testnet.algoexplorerapi.io/';
 export const IPFS = 'ipfs://';
 export const IPFS_DOMAIN = 'https://ipfs.io/ipfs/';
+export const TOTAL_COUNT = 250;
+export const DEFAULT_PRICE = 100 * 1e6;
